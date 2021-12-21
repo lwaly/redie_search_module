@@ -137,13 +137,6 @@ func (c Ctx) Load(mod *Module, args []String) int {
 		return ERR
 	}
 	c.LogDebug("Load module %s %v", mod.Name, args)
-	// if mod.BeforeInit != nil {
-	// 	err := mod.BeforeInit(c, args)
-	// 	if err != nil {
-	// 		c.LogWarn("BeforeInit failed: %v", err)
-	// 		return ERR
-	// 	}
-	// }
 
 	for _, cmd := range mod.Commands {
 		if c.CreateCommand(cmd) == ERR {
@@ -151,19 +144,9 @@ func (c Ctx) Load(mod *Module, args []String) int {
 		}
 	}
 
-	// if mod.AfterInit != nil {
-	// 	err := mod.AfterInit(c, args)
-	// 	if err != nil {
-	// 		c.LogWarn("BeforeInit failed: %v", err)
-	// 		return ERR
-	// 	}
-	// }
 	return OK
 }
 
-// int CreateCommandCallID(RedisModuleCtx *ctx,int id, const char *name,  const char *strflags, int firstkey, int lastkey, int keystep) {
-// 	return RedisModule_CreateCommand(ctx, name, cb_cmd_func[id], strflags, firstkey, lastkey, keystep);
-//   }
 func (c Ctx) CreateCommand(cmd *Command) int {
 	name := C.CString(cmd.Name)
 	defer C.free(unsafe.Pointer(name))
@@ -174,9 +157,6 @@ func (c Ctx) CreateCommand(cmd *Command) int {
 	// return (int)(C.CreateCommandCallID((*C.struct_RedisModuleCtx)(c.ptr()), C.int(id), name, flags, C.int(cmd.FirstKey), C.int(cmd.LastKey), C.int(cmd.KeyStep)))
 }
 
-// func getCommand(name string) *Command {
-// 	return &commands[name]
-// }
 func (ctx Ctx) ReplyWithOK() int {
 	return int(C.ReplyWithSimpleString((*C.struct_RedisModuleCtx)(ctx.ptr()), C.CString("OK")))
 }
@@ -202,24 +182,3 @@ func (str String) String() string {
 	ptr := C.StringPtrLen((*C.struct_RedisModuleString)(str.ptr()), (*C.size_t)(&l))
 	return C.GoStringN(ptr, C.int(l))
 }
-
-// // Convert the string into a long long integer, storing it at `*ll`.
-// // Returns `REDISMODULE_OK` on success. If the string can't be parsed
-// // as a valid, strict long long (no spaces before/after), `REDISMODULE_ERR`
-// // is returned.
-// // int RM_StringToLongLong(RedisModuleString *str, long long *ll);
-// func (str String) StringToLongLong(ll *int64) int {
-// 	return int(C.StringToLongLong((*C.struct_RedisModuleString)(str.ptr()), (*C.longlong)(ll)))
-// }
-
-// // Convert the string into a double, storing it at `*d`.
-// // Returns `REDISMODULE_OK` on success or `REDISMODULE_ERR` if the string is
-// // not a valid string representation of a double value.
-// // int RM_StringToDouble(RedisModuleString *str, double *d);
-// func (str String) StringToDouble(d *float64) int {
-// 	return int(C.StringToDouble((*C.struct_RedisModuleString)(str.ptr()), (*C.double)(d)))
-// }
-
-// func (str String) Compare(b String) int {
-// 	return int(C.StringCompare((*C.struct_RedisModuleString)(str.ptr()), (*C.struct_RedisModuleString)(b.ptr())))
-// }
